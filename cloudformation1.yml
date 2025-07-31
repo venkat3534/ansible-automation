@@ -12,7 +12,7 @@
       amazon.aws.cloudformation:
         stack_name: "{{ stack_name }}"
         state: present
-        template_body: "{{ lookup('file', 'cloudformation-template.yml') }}"
+        template_body: "{{ lookup('file', 'cloudformation.yml') }}"
         template_parameters:
           KeyName: "{{ key_name }}"
         region: ap-south-1

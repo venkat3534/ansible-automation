@@ -5,15 +5,34 @@
     repo_name: myapp
     aws_region: ap-south-1
     ecr_url: "506115906214.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ repo_name }}"
+    local_directory: .  # Local directory containing files to copy
+    remote_directory: /home/ec2-user  # Destination directory on EC2
   tasks:
+
+    - name: Copy all files from local to EC2
+      copy:
+        src: "{{ local_directory }}"
+        dest: "{{ remote_directory }}"
+        owner: ec2-user
+        group: ec2-user
+        mode: '0644'
+        remote_src: no
 
     - name: Login to ECR
       shell: |
         aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ ecr_url }}
 
+
+    - name: Ensure ECR repository exists
+      shell: |
+        aws ecr describe-repositories --repository-names {{ repo_name }} --region {{ aws_region }} || \
+        aws ecr create-repository --repository-name {{ repo_name }} --region {{ aws_region }}
+      register: ecr_repository
+      changed_when: "'RepositoryAlreadyExistsException' not in ecr_repository.stderr"
+
     - name: Build Docker image
       shell: |
-        docker build -t {{ repo_name }} /home/venkataramana/ansible-automation/Dockerfile
+        docker build -t {{ repo_name }} .
 
     - name: Tag Docker image
       shell: |
