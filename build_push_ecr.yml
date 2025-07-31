@@ -1,0 +1,25 @@
+- name: Build and Push Docker image to ECR
+  hosts: cicd
+  become: true
+  vars:
+    repo_name: myapp
+    aws_region: ap-south-1
+    ecr_url: "506115906214.dkr.ecr.{{ aws_region }}.amazonaws.com/{{ repo_name }}"
+  tasks:
+
+    - name: Login to ECR
+      shell: |
+        aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ ecr_url }}
+
+    - name: Build Docker image
+      shell: |
+        docker build -t {{ repo_name }} /home/venkataramana/ansible-automation/Dockerfile
+
+    - name: Tag Docker image
+      shell: |
+        docker tag {{ repo_name }}:latest {{ ecr_url }}:latest
+
+    - name: Push Docker image
+      shell: |
+        docker push {{ ecr_url }}:latest
+

@@ -1,0 +1,27 @@
+---
+- name: Create EC2 instances with CloudFormation
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_python_interpreter: /home/venkataramana/ansible-env/bin/python
+    stack_name: cicd-app-stack
+    key_name: gvr  # Replace with your actual EC2 KeyPair name
+
+  tasks:
+    - name: Launch CloudFormation stack
+      amazon.aws.cloudformation:
+        stack_name: "{{ stack_name }}"
+        state: present
+        template_body: "{{ lookup('file', 'cloudformation-template.yml') }}"
+        template_parameters:
+          KeyName: "{{ key_name }}"
+        region: ap-south-1
+        capabilities:
+          - CAPABILITY_IAM
+          - CAPABILITY_NAMED_IAM
+      register: cf_result
+
+    - name: Print CloudFormation stack events
+      debug:
+        var: cf_result
+

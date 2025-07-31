@@ -1,0 +1,6 @@
+[cicd]
+13.200.236.160 ansible_user=ec2-user ansible_ssh_private_key_file=/home/venkataramana/gvr.pem
+
+[app]
+3.110.156.137 ansible_user=ec2-user ansible_ssh_private_key_file=/home/venkataramana/gvr.pem
+
